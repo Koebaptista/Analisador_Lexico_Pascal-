@@ -1,0 +1,11 @@
+digraph ID {
+    rankdir=LR;
+
+    start [shape=point];
+    start -> q0;
+
+    q0 -> q1 [label="letra"];
+    q1 -> q1 [label="letra | dígito"];
+
+    q1 [shape=doublecircle, label="ID/KW"];
+}

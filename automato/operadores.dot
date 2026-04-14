@@ -1,0 +1,29 @@
+digraph OP {
+    rankdir=LR;
+
+    start [shape=point];
+    start -> q0;
+
+    q0 -> q1 [label="<"];
+    q1 -> q2 [label="="];
+    q1 -> q3 [label=">"];
+
+    q0 -> q4 [label=">"];
+    q4 -> q5 [label="="];
+
+    q0 -> q6 [label="="];
+
+    q0 -> q7 [label=":"];
+    q7 -> q8 [label="="];
+
+    q2 [shape=doublecircle, label="<="];
+    q3 [shape=doublecircle, label="<>"];
+    q1 [shape=doublecircle, label="<"];
+
+    q5 [shape=doublecircle, label=">="];
+    q4 [shape=doublecircle, label=">"];
+
+    q6 [shape=doublecircle, label="="];
+    q8 [shape=doublecircle, label=":="];
+    q7 [shape=doublecircle, label=":"];
+}
