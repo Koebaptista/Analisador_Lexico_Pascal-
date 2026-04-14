@@ -1,8 +1,6 @@
-program Exemplo;
+program Teste;
 var
-x, y : integer;
+x : integer;
 begin
-x := 10;
-y := x + 2;
 x := 10 @ 2;
 end.

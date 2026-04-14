@@ -21,7 +21,7 @@ void inserirTS(char *lexema, char *tipo) {
 }
 
 void salvarTS() {
-    FILE *f = fopen("../saida/saida/tabela.ts", "w");
+    FILE *f = fopen("../saida/tabela.ts", "w");
 
     for (int i = 0; i < qtdTS; i++) {
         fprintf(f, "%-15s | %-20s\n", TS[i].lexema, TS[i].tipo);

@@ -4,9 +4,20 @@
 #include "tabela_simbolos.h"
 #include <direct.h>
 
+void inicializarTS() {
+    char *reservadas[] = {
+        "program","var","integer","real","begin","end",
+        "if","then","else","while","do"
+    };
+
+    for (int i = 0; i < 11; i++) {
+        inserirTS(reservadas[i], "palavra-reservada");
+    }
+}
+
 int main() {
 
-    _mkdir("saida"); // cria pasta automaticamente
+    _mkdir("../saida"); // cria pasta automaticamente
 
     // cria arquivo de erros vazio
     FILE *err = fopen("../saida/erros.err", "w");
@@ -20,6 +31,8 @@ int main() {
         printf("Erro ao abrir arquivos.\n");
         return 1;
     }
+
+    inicializarTS();
 
     Token tk;
 

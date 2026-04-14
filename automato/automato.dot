@@ -1,42 +1,122 @@
 digraph AFD {
-    rankdir=LR;
-    node [shape=circle];
+    rankdir=TB;
+    fontname="Helvetica";
 
+    node [shape=circle, fontname="Helvetica"];
+    edge [fontname="Helvetica"];
+
+    /* =========================
+       ESTADO INICIAL
+    ========================= */
     start [shape=point];
     start -> q0;
 
-    // IDENTIFICADOR
-    q0 -> q1 [label="letra"];
-    q1 -> q1 [label="letra|digito"];
-
-    // NUMEROS
-    q0 -> q2 [label="digito"];
-    q2 -> q2 [label="digito"];
-    q2 -> q3 [label="."];
-    q3 -> q4 [label="digito"];
-    q4 -> q4 [label="digito"];
-
-    // OPERADORES RELACIONAIS
-    q0 -> q5 [label="<"];
-    q5 -> q6 [label="="];   // <=
-    q5 -> q7 [label=">"];   // <>
-    
-    q0 -> q8 [label=">"];
-    q8 -> q9 [label="="];   // >=
-
-    // ATRIBUIÇÃO
-    q0 -> q10 [label=":"];
-    q10 -> q11 [label="="]; // :=
-
-    // IGUAL
-    q0 -> q12 [label="="];
-
-    // COMENTARIO
-    q0 -> q13 [label="{"];
-    q13 -> q13 [label="qualquer"];
-    q13 -> q14 [label="}"];
-
-    // FINAIS
+    /* =========================
+       ESTADOS FINAIS
+    ========================= */
     node [shape=doublecircle];
-    q1 q2 q4 q5 q6 q7 q8 q9 q11 q12;
+
+    q1  [label="ID/KW"];
+    q2  [label="NUM_INT"];
+    q4  [label="NUM_REAL"];
+
+    q5  [label="OP_LT"];
+    q6  [label="OP_LE"];
+    q7  [label="OP_NE"];
+
+    q8  [label="OP_GT"];
+    q9  [label="OP_GE"];
+
+    q10 [label="OP_EQ"];
+
+    q11 [label="SMB_COL"];
+    q12 [label="OP_ASS"];
+
+    q13 [label="OP_AD"];
+    q14 [label="OP_MIN"];
+    q15 [label="OP_MUL"];
+    q16 [label="OP_DIV"];
+
+    q17 [label="SMB_SEM"];
+    q18 [label="SMB_COM"];
+    q19 [label="SMB_OPA"];
+    q20 [label="SMB_CPA"];
+    q21 [label="SMB_DOT"];
+
+    /* =========================
+       INTERMEDIÁRIOS
+    ========================= */
+    node [shape=circle];
+
+    q0  [label="q0"];
+    q3  [label="q3"];
+    q22 [label="COM"];
+    qERRO [label="ERRO", color=red];
+
+    /* =========================
+       IDENTIFICADORES
+    ========================= */
+    q0 -> q1 [label="letra"];
+    q1 -> q1 [label="letra | dígito"];
+
+    /* =========================
+       NÚMEROS
+    ========================= */
+    q0 -> q2 [label="dígito"];
+    q2 -> q2 [label="dígito"];
+    q2 -> q3 [label="."];
+    q3 -> q4 [label="dígito"];   // exige decimal
+    q4 -> q4 [label="dígito"];
+
+    /* =========================
+       OPERADORES RELACIONAIS
+    ========================= */
+    q0 -> q5 [label="<"];
+    q5 -> q6 [label="="];
+    q5 -> q7 [label=">"];
+
+    q0 -> q8 [label=">"];
+    q8 -> q9 [label="="];
+
+    q0 -> q10 [label="="];
+
+    /* =========================
+       ATRIBUIÇÃO
+    ========================= */
+    q0 -> q11 [label=":"];
+    q11 -> q12 [label="="];
+
+    /* =========================
+       OPERADORES ARITMÉTICOS
+    ========================= */
+    q0 -> q13 [label="+"];
+    q0 -> q14 [label="-"];
+    q0 -> q15 [label="*"];
+    q0 -> q16 [label="/"];
+
+    /* =========================
+       SÍMBOLOS
+    ========================= */
+    q0 -> q17 [label=";"];
+    q0 -> q18 [label=","];
+    q0 -> q19 [label="("];
+    q0 -> q20 [label=")"];
+    q0 -> q21 [label="."];
+
+    /* =========================
+       COMENTÁRIOS (IGNORAR)
+    ========================= */
+    q0  -> q22 [label="{"];
+    q22 -> q22 [label="qualquer exceto }"];
+    q22 -> q0  [label="}"];
+    q22 -> qERRO [label="EOF"];  // comentário não fechado
+
+    /* =========================
+       ERROS LÉXICOS
+    ========================= */
+    q0 -> qERRO [label="caractere inválido"];
+
+    /* (opcional - reforço visual) */
+    q1 -> qERRO [style=dotted, label="inválido"];
+    q2 -> qERRO [style=dotted, label="inválido"];
 }

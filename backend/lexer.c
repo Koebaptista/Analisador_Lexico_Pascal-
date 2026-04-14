@@ -21,8 +21,8 @@ int ehReservada(char *lex) {
 }
 
 void erro(char c) {
-    FILE *f = fopen("../saida/saida/erros.err", "a");
-    fprintf(f, "Erro: caractere invalido '%c' linha %d coluna %d\n", c, linha, coluna);
+    FILE *f = fopen("../saida/erros.err", "a");
+    fprintf(f, "Erro: caractere invalido no arquivo de entrada '%c' linha %d coluna %d\n", c, linha, coluna);
     fclose(f);
 }
 
@@ -81,19 +81,28 @@ Token proximoToken(FILE *fp) {
             }
 
             if (c == '.') {
-                isReal = 1;
-                tk.lexema[i++] = c;
-                coluna++;
+                char prox = fgetc(fp);
 
-                if (!isdigit(c = fgetc(fp))) {
-                    erro('.');
-                    break;
-                }
-
-                do {
-                    tk.lexema[i++] = c;
+                if (isdigit(prox)) {
+                    // número REAL válido
+                    isReal = 1;
+                    tk.lexema[i++] = '.';
                     coluna++;
-                } while (isdigit(c = fgetc(fp)));
+
+                    tk.lexema[i++] = prox;
+                    coluna++;
+
+                    while (isdigit(c = fgetc(fp))) {
+                        tk.lexema[i++] = c;
+                        coluna++;
+                    }
+
+                    ungetc(c, fp);
+                } else {
+                    // ERRO: número mal formado (ex: 20.)
+                    erro('.');
+                    ungetc(prox, fp); // devolve o próximo caractere
+                }
             }
 
             tk.lexema[i] = '\0';
@@ -108,12 +117,24 @@ Token proximoToken(FILE *fp) {
 
         // COMENTÁRIO
         if (c == '{') {
-            while ((c = fgetc(fp)) != EOF && c != '}') {
-                if (c == '\n') linha++;
+            int fechado = 0;
+
+            while ((c = fgetc(fp)) != EOF) {
+                coluna++;
+
+                if (c == '\n') {
+                    linha++;
+                    coluna = 0;
+                }
+
+                if (c == '}') {
+                    fechado = 1;
+                    break;
+                }
             }
 
-            if (c == EOF) {
-                FILE *f = fopen("../saida/saida/erros.err", "a");
+            if (!fechado) {
+                FILE *f = fopen("../saida/erros.err", "a");
                 fprintf(f, "Erro: comentario nao fechado linha %d\n", linha);
                 fclose(f);
             }
