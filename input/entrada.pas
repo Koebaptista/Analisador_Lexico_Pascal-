@@ -1,15 +1,17 @@
-program Teste;
+program TesteCompleto;
 var
-x, y : integer;
-z : real;
-begin
-x := 10;
-y := 20;
-z := 2.5;
-x := x + y * 2;
+a, b, c : integer;
+x : real;
 
-x := 20.;      { erro número mal formado }
-y := 10 @ 2;   { erro caractere inválido }
+begin
+a := 10;
+b := 20;
+c := a + b * 2;
+
+x := 3.14;
+x := 20.;        { erro número mal formado }
+
+y := 10 @ 2;     { erro caractere inválido }
 
 { comentário não fechado
 end.

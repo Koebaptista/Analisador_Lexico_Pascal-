@@ -9,8 +9,9 @@ then            | palavra-reservada
 else            | palavra-reservada   
 while           | palavra-reservada   
 do              | palavra-reservada   
-testeeeeeeeeeeeeeeeeeeeeeeeeee | identificador       
+testecompleto   | identificador       
+a               | identificador       
+b               | identificador       
+c               | identificador       
 x               | identificador       
 y               | identificador       
-z               | identificador       
-eeeee0          | identificador       

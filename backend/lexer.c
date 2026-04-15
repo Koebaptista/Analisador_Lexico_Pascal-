@@ -55,7 +55,9 @@ Token proximoToken(FILE *fp) {
             }
 
             tk.lexema[i] = '\0';
-            ungetc(c, fp);
+            if (c != EOF) {
+                ungetc(c, fp);
+            }
 
             if (ehReservada(tk.lexema)) {
                 sprintf(tk.token, "KW_%s", tk.lexema);
@@ -97,16 +99,40 @@ Token proximoToken(FILE *fp) {
                         coluna++;
                     }
 
-                    ungetc(c, fp);
+                    if (c != EOF) {
+                        ungetc(c, fp);
+                        
+                    }
+
                 } else {
-                    // ERRO: número mal formado (ex: 20.)
-                    erro('.');
-                    ungetc(prox, fp); // devolve o próximo caractere
+                    // ❗ ERRO: número mal formado (ex: 20.)
+                    tk.lexema[i++] = '.';  // inclui o ponto no lexema
+                    tk.lexema[i] = '\0';
+
+                    FILE *f = fopen("../saida/erros.err", "a");
+                    fprintf(f, "Erro: numero mal formado '%s' linha %d coluna %d\n",
+                            tk.lexema, linha, col_inicio);
+                    fclose(f);
+
+                    if (prox != EOF) {
+                        ungetc(prox, fp);
+                        coluna--;
+                    }
+
+                    // retorna como erro (ou pode ignorar)
+                    strcpy(tk.token, "ERRO");
+
+                    tk.linha = linha;
+                    tk.coluna = col_inicio;
+                    return tk;
                 }
             }
 
             tk.lexema[i] = '\0';
-            ungetc(c, fp);
+            if (c != EOF) {
+                ungetc(c, fp);
+                
+            }
 
             strcpy(tk.token, isReal ? "NUM_REAL" : "NUM_INT");
 
@@ -135,7 +161,7 @@ Token proximoToken(FILE *fp) {
 
             if (!fechado) {
                 FILE *f = fopen("../saida/erros.err", "a");
-                fprintf(f, "Erro: comentario nao fechado linha %d\n", linha);
+                fprintf(f, "Erro: comentario nao fechado linha %d coluna %d\n", linha, coluna);
                 fclose(f);
             }
 
@@ -167,6 +193,7 @@ Token proximoToken(FILE *fp) {
                 } else {
                     strcpy(tk.token, "OP_LT");
                     ungetc(c, fp);
+                    
                 }
                 break;
 
@@ -179,6 +206,7 @@ Token proximoToken(FILE *fp) {
                 } else {
                     strcpy(tk.token, "OP_GT");
                     ungetc(c, fp);
+                   
                 }
                 break;
 
@@ -191,6 +219,7 @@ Token proximoToken(FILE *fp) {
                 } else {
                     strcpy(tk.token, "SMB_COL");
                     ungetc(c, fp);
+                    
                 }
                 break;
 
