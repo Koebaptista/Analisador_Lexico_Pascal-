@@ -21,8 +21,8 @@ int ehReservada(char *lex) {
 }
 
 void erro(char c) {
-    FILE *f = fopen("saida/erros.err", "a");
-    fprintf(f, "Erro: caractere invalido '%c' linha %d coluna %d\n", c, linha, coluna);
+    FILE *f = fopen("../saida/erros.err", "a");
+    fprintf(f, "Erro: caractere invalido no arquivo de entrada '%c' linha %d coluna %d\n", c, linha, coluna);
     fclose(f);
 }
 
@@ -55,7 +55,9 @@ Token proximoToken(FILE *fp) {
             }
 
             tk.lexema[i] = '\0';
-            ungetc(c, fp);
+            if (c != EOF) {
+                ungetc(c, fp);
+            }
 
             if (ehReservada(tk.lexema)) {
                 sprintf(tk.token, "KW_%s", tk.lexema);
@@ -81,23 +83,56 @@ Token proximoToken(FILE *fp) {
             }
 
             if (c == '.') {
-                isReal = 1;
-                tk.lexema[i++] = c;
-                coluna++;
+                char prox = fgetc(fp);
 
-                if (!isdigit(c = fgetc(fp))) {
-                    erro('.');
-                    break;
-                }
-
-                do {
-                    tk.lexema[i++] = c;
+                if (isdigit(prox)) {
+                    // número REAL válido
+                    isReal = 1;
+                    tk.lexema[i++] = '.';
                     coluna++;
-                } while (isdigit(c = fgetc(fp)));
+
+                    tk.lexema[i++] = prox;
+                    coluna++;
+
+                    while (isdigit(c = fgetc(fp))) {
+                        tk.lexema[i++] = c;
+                        coluna++;
+                    }
+
+                    if (c != EOF) {
+                        ungetc(c, fp);
+                        
+                    }
+
+                } else {
+                    
+                    tk.lexema[i++] = '.'; 
+                    tk.lexema[i] = '\0';
+
+                    FILE *f = fopen("../saida/erros.err", "a");
+                    fprintf(f, "Erro: numero mal formado '%s' linha %d coluna %d\n",
+                            tk.lexema, linha, col_inicio);
+                    fclose(f);
+
+                    if (prox != EOF) {
+                        ungetc(prox, fp);
+                        coluna--;
+                    }
+
+                
+                    strcpy(tk.token, "ERRO");
+
+                    tk.linha = linha;
+                    tk.coluna = col_inicio;
+                    return tk;
+                }
             }
 
             tk.lexema[i] = '\0';
-            ungetc(c, fp);
+            if (c != EOF) {
+                ungetc(c, fp);
+                
+            }
 
             strcpy(tk.token, isReal ? "NUM_REAL" : "NUM_INT");
 
@@ -108,13 +143,25 @@ Token proximoToken(FILE *fp) {
 
         // COMENTÁRIO
         if (c == '{') {
-            while ((c = fgetc(fp)) != EOF && c != '}') {
-                if (c == '\n') linha++;
+            int fechado = 0;
+
+            while ((c = fgetc(fp)) != EOF) {
+                coluna++;
+
+                if (c == '\n') {
+                    linha++;
+                    coluna = 0;
+                }
+
+                if (c == '}') {
+                    fechado = 1;
+                    break;
+                }
             }
 
-            if (c == EOF) {
-                FILE *f = fopen("saida/erros.err", "a");
-                fprintf(f, "Erro: comentario nao fechado linha %d\n", linha);
+            if (!fechado) {
+                FILE *f = fopen("../saida/erros.err", "a");
+                fprintf(f, "Erro: comentario nao fechado linha %d coluna %d\n", linha, coluna);
                 fclose(f);
             }
 
@@ -146,6 +193,7 @@ Token proximoToken(FILE *fp) {
                 } else {
                     strcpy(tk.token, "OP_LT");
                     ungetc(c, fp);
+                    
                 }
                 break;
 
@@ -158,6 +206,7 @@ Token proximoToken(FILE *fp) {
                 } else {
                     strcpy(tk.token, "OP_GT");
                     ungetc(c, fp);
+                   
                 }
                 break;
 
@@ -170,6 +219,7 @@ Token proximoToken(FILE *fp) {
                 } else {
                     strcpy(tk.token, "SMB_COL");
                     ungetc(c, fp);
+                    
                 }
                 break;
 

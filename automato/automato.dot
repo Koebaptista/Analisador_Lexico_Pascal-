@@ -1,0 +1,97 @@
+digraph LEXICO {
+    rankdir=LR;
+    node [fontname="Helvetica"];
+    edge [fontname="Helvetica"];
+
+    start [shape=point];
+    start -> q0;
+
+    // ========================
+    // ESTADO INICIAL
+    // ========================
+    q0 -> q1 [label="letra"];
+    q0 -> q2 [label="dígito"];
+    q0 -> q3 [label="{"];
+    q0 -> q4 [label="<"];
+    q0 -> q5 [label=">"];
+    q0 -> q6 [label="="];
+    q0 -> q7 [label=":"];
+
+    // operadores aritméticos
+    q0 -> q14 [label="+ | - | * | /"];
+
+    // símbolos
+    q0 -> q15 [label="; | , | ( | ) | ."];
+
+    // erro geral
+    q0 -> q16 [label="inválido"];
+
+    // ========================
+    // IDENTIFICADORES
+    // ========================
+    q1 -> q1 [label="letra | dígito"];
+    q1 [shape=doublecircle, label="q1 (ID/KW)"];
+
+    // ========================
+    // NÚMEROS
+    // ========================
+    q2 -> q2 [label="dígito"];
+    q2 -> q8 [label="."];
+
+    q8 -> q9 [label="dígito"];
+    q9 -> q9 [label="dígito"];
+
+    q2 [shape=doublecircle, label="q2 (NUM_INT)"];
+    q9 [shape=doublecircle, label="q9 (NUM_REAL)"];
+
+    q8 -> q16 [label="outro"]; // ex: 20.
+
+    // ========================
+    // COMENTÁRIOS
+    // ========================
+    q3 -> q3 [label="qualquer exceto }"];
+    q3 -> q0 [label="}"];
+    q3 -> q16 [label="EOF"];
+
+    // ========================
+    // OPERADORES RELACIONAIS
+    // ========================
+
+    // <
+    q4 -> q10 [label="="];
+    q4 -> q11 [label=">"];
+    q4 [shape=doublecircle, label="q4 (<)"];
+
+    q10 [shape=doublecircle, label="q10 (<=)"];
+    q11 [shape=doublecircle, label="q11 (<>)"];
+
+    // >
+    q5 -> q12 [label="="];
+    q5 [shape=doublecircle, label="q5 (>)"];
+
+    q12 [shape=doublecircle, label="q12 (>=)"];
+
+    // =
+    q6 [shape=doublecircle, label="q6 (=)"];
+
+    // :
+    q7 -> q13 [label="="];
+    q7 [shape=doublecircle, label="q7 (:)"];
+
+    q13 [shape=doublecircle, label="q13 (:=)"];
+
+    // ========================
+    // OPERADORES ARITMÉTICOS
+    // ========================
+    q14 [shape=doublecircle, label="q14 (OP_ARIT)"];
+
+    // ========================
+    // SÍMBOLOS
+    // ========================
+    q15 [shape=doublecircle, label="q15 (SIMBOLO)"];
+
+    // ========================
+    // ERRO
+    // ========================
+    q16 [shape=doublecircle, color=red, label="q16 (ERRO)"];
+}
