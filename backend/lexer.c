@@ -105,8 +105,8 @@ Token proximoToken(FILE *fp) {
                     }
 
                 } else {
-                    // ❗ ERRO: número mal formado (ex: 20.)
-                    tk.lexema[i++] = '.';  // inclui o ponto no lexema
+                    
+                    tk.lexema[i++] = '.'; 
                     tk.lexema[i] = '\0';
 
                     FILE *f = fopen("../saida/erros.err", "a");
@@ -119,7 +119,7 @@ Token proximoToken(FILE *fp) {
                         coluna--;
                     }
 
-                    // retorna como erro (ou pode ignorar)
+                
                     strcpy(tk.token, "ERRO");
 
                     tk.linha = linha;

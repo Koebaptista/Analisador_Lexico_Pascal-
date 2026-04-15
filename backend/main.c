@@ -17,9 +17,8 @@ void inicializarTS() {
 
 int main() {
 
-    _mkdir("../saida"); // cria pasta automaticamente
+    _mkdir("../saida"); 
 
-    // cria arquivo de erros vazio
     FILE *err = fopen("../saida/erros.err", "w");
     fclose(err);
 
