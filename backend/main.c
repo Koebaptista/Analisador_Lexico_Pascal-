@@ -3,6 +3,7 @@
 #include "lexer.h"
 #include "tabela_simbolos.h"
 #include <direct.h>
+#include "sintaxe.h"
 
 void inicializarTS() {
     char *reservadas[] = {
@@ -33,17 +34,11 @@ int main() {
 
     inicializarTS();
 
-    Token tk;
+    initParser(fp, out);
 
-    while (1) {
-        tk = proximoToken(fp);
+    programa();
 
-        if (strcmp(tk.token, "EOF") == 0)
-            break;
-
-        fprintf(out, "<%-12s %-12s> (%2d, %2d)\n",
-            tk.token, tk.lexema, tk.linha, tk.coluna);
-    }
+    printf("\nAnalise sintatica concluida com sucesso!\n");
 
     salvarTS();
 
