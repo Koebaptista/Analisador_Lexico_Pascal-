@@ -78,21 +78,52 @@ static void emiteProd(const char *regra) {
 
 /* Reporta erro e encerra a compilação */
 static void erroSintatico(const char *msg) {
-    /* Formato exigido pelo enunciado:
-       nn:token nao esperado [lex].
-       nn:fim de arquivo nao esperado.            */
+
+    FILE *ferr = fopen("../saida/erros.err", "a");
+
     if (strcmp(tokenAtual.token, "EOF") == 0) {
-        fprintf(stderr, "%d:fim de arquivo nao esperado.\n", tokenAtual.linha);
-        fprintf(saida,  "%d:fim de arquivo nao esperado.\n", tokenAtual.linha);
+
+        fprintf(stderr,
+                "%d:fim de arquivo nao esperado.\n",
+                tokenAtual.linha);
+
+        fprintf(saida,
+                "%d:fim de arquivo nao esperado.\n",
+                tokenAtual.linha);
+
+        if (ferr) {
+            fprintf(ferr,
+                    "%d:fim de arquivo nao esperado.\n",
+                    tokenAtual.linha);
+        }
+
     } else {
-        fprintf(stderr, "%d:token nao esperado [%s].\n",
-                tokenAtual.linha, tokenAtual.lexema);
-        fprintf(saida,  "%d:token nao esperado [%s].\n",
-                tokenAtual.linha, tokenAtual.lexema);
+
+        fprintf(stderr,
+                "%d:token nao esperado [%s].\n",
+                tokenAtual.linha,
+                tokenAtual.lexema);
+
+        fprintf(saida,
+                "%d:token nao esperado [%s].\n",
+                tokenAtual.linha,
+                tokenAtual.lexema);
+
+        if (ferr) {
+            fprintf(ferr,
+                    "%d:token nao esperado [%s].\n",
+                    tokenAtual.linha,
+                    tokenAtual.lexema);
+        }
     }
+
+    if (ferr)
+        fclose(ferr);
+
     (void)msg;
     erros++;
-    exit(1); /* aborta conforme especificação */
+
+    exit(1);
 }
 
 /* Avança para o próximo token */
