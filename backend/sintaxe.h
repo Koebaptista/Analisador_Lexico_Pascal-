@@ -5,5 +5,6 @@
 
 void initParser(FILE *fp, FILE *out);
 void programa(void);
+void imprimirArvore();
 
 #endif

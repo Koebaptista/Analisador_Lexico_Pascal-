@@ -41,6 +41,35 @@ static int    erros = 0;  /* contagem de erros sintáticos             */
 /* Utilitários internos                                                */
 /* ------------------------------------------------------------------ */
 
+typedef struct {
+    char linhas[500][200];
+    int qtd;
+} Arvore;
+
+Arvore arvore;
+
+void addArvore(char *texto) {
+
+    strcpy(arvore.linhas[arvore.qtd], texto);
+    arvore.qtd++;
+}
+
+void imprimirArvore() {
+
+    fprintf(saida,
+        "\n========================================\n"
+        "ARVORE SINTATICA\n"
+        "========================================\n\n");
+
+    for(int i = 0; i < arvore.qtd; i++) {
+
+        fprintf(saida,
+                "%s\n",
+                arvore.linhas[i]);
+    }
+}
+
+
 /* Emite uma linha de produção no arquivo de saída e no stdout */
 static void emiteProd(const char *regra) {
     fprintf(saida,  "%s\n", regra);
@@ -110,6 +139,7 @@ static void fator(void);
  * programa ::= program <identificador> ; <bloco> .
  */
 void programa(void) {
+    addArvore("programa");
     emiteProd("<programa> ::= program <identificador> ; <bloco> .");
     casaToken("KW_program");
     casaToken("ID");
@@ -126,6 +156,7 @@ void programa(void) {
  * bloco ::= <parte_decl_var> <cmd_composto>
  */
 static void bloco(void) {
+    addArvore("└── bloco");
     emiteProd("<bloco> ::= <parte_decl_var> <cmd_composto>");
     parteDeclaracoesVar();
     comandoComposto();
@@ -159,6 +190,7 @@ static void parteDeclaracoesVar(void) {
  * decl_var ::= <lista_id> : <tipo>
  */
 static void declaracaoVar(void) {
+     addArvore("    ├── declaracao");
     emiteProd("<decl_var> ::= <lista_id> : <tipo>");
     listaIdentificadores();
     casaToken("SMB_COL");
@@ -241,6 +273,7 @@ static void comando(void) {
  * variavel    ::= <identificador>
  */
 static void atribuicao(void) {
+    addArvore("        ├── atribuicao");
     emiteProd("<atribuicao> ::= <variavel> := <expressao>");
     emiteProd("<variavel> ::= <identificador>");
     casaToken("ID");
@@ -252,6 +285,7 @@ static void atribuicao(void) {
  * cmd_condicional ::= if <expressao> then <comando> [ else <comando> ]
  */
 static void cmdCondicional(void) {
+    addArvore("        ├── if");
     emiteProd("<cmd_condicional> ::= if <expressao> then <comando> [ else <comando> ]");
     casaToken("KW_if");
     expressao();
@@ -267,6 +301,7 @@ static void cmdCondicional(void) {
  * cmd_repetitivo ::= while <expressao> do <comando>
  */
 static void cmdRepetitivo(void) {
+    addArvore("        └── while");
     emiteProd("<cmd_repetitivo> ::= while <expressao> do <comando>");
     casaToken("KW_while");
     expressao();
@@ -360,6 +395,7 @@ static void fator(void) {
         erroSintatico("fator esperado");
     }
 }
+
 
 /* ------------------------------------------------------------------ */
 /* Ponto de entrada público                                            */

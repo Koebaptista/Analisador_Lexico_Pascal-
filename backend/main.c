@@ -18,14 +18,13 @@ void inicializarTS() {
 
 int main() {
 
-    _mkdir("../saida"); 
+    _mkdir("../saida");
 
     FILE *err = fopen("../saida/erros.err", "w");
     fclose(err);
 
     FILE *fp = fopen("../input/entrada.pas", "r");
     FILE *out = fopen("../saida/saida.lex", "w");
-    
 
     if (!fp || !out) {
         printf("Erro ao abrir arquivos.\n");
@@ -34,9 +33,43 @@ int main() {
 
     inicializarTS();
 
+    fprintf(out,
+        "========================================\n"
+        "ANALISE LEXICA\n"
+        "========================================\n\n");
+
+    Token tk;
+
+    while (1) {
+
+        tk = proximoToken(fp);
+
+        if (strcmp(tk.token, "EOF") == 0)
+            break;
+
+        fprintf(out,
+            "<%-12s %-12s> (%2d, %2d)\n",
+            tk.token,
+            tk.lexema,
+            tk.linha,
+            tk.coluna);
+    }
+
+    rewind(fp);
+
+    fprintf(out,
+        "\n\n========================================\n"
+        "ANALISE SINTATICA\n"
+        "========================================\n\n");
+
     initParser(fp, out);
 
     programa();
+
+    imprimirArvore();
+
+    fprintf(out,
+        "\nAnalise sintatica concluida com sucesso!\n");
 
     printf("\nAnalise sintatica concluida com sucesso!\n");
 
