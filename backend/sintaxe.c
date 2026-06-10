@@ -1,45 +1,14 @@
-/*
- * parser.c  –  Analisador Sintático Descendente Recursivo para MicroPascal
- *
- * Gramática implementada (BNF conforme enunciado):
- *
- *  programa          ::= program <identificador> ; <bloco> .
- *  bloco             ::= <parte_decl_var> <cmd_composto>
- *  parte_decl_var    ::= { var <decl_var> { ; <decl_var> } ; }
- *  decl_var          ::= <lista_id> : <tipo>
- *  lista_id          ::= <identificador> { , <identificador> }
- *  tipo              ::= integer | real
- *  cmd_composto      ::= begin <comando> ; { <comando> ; } end
- *  comando           ::= <atribuicao> | <cmd_composto>
- *                      | <cmd_condicional> | <cmd_repetitivo>
- *  atribuicao        ::= <variavel> := <expressao>
- *  cmd_condicional   ::= if <expressao> then <comando> [ else <comando> ]
- *  cmd_repetitivo    ::= while <expressao> do <comando>
- *  expressao         ::= <expr_simples> [ <relacao> <expr_simples> ]
- *  relacao           ::= = | <> | < | <= | >= | >
- *  expr_simples      ::= [ + | - ] <termo> { ( + | - ) <termo> }
- *  termo             ::= <fator> { ( * | / ) <fator> }
- *  fator             ::= <variavel> | <numero> | ( <expressao> )
- *  variavel          ::= <identificador>
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "lexer.h"
 #include "sintaxe.h"
 
-/* ------------------------------------------------------------------ */
-/* Estado global do parser                                             */
-/* ------------------------------------------------------------------ */
-static FILE  *fonte;      /* arquivo fonte sendo analisado            */
-static FILE  *saida;      /* arquivo de saída (regras de produção)    */
-static Token  tokenAtual; /* token corrente                           */
-static int    erros = 0;  /* contagem de erros sintáticos             */
+static FILE  *fonte;      
+static FILE  *saida;  
+static Token  tokenAtual; 
+static int    erros = 0;  
 
-/* ------------------------------------------------------------------ */
-/* Utilitários internos                                                */
-/* ------------------------------------------------------------------ */
 
 typedef struct {
     char linhas[500][200];
@@ -70,13 +39,11 @@ void imprimirArvore() {
 }
 
 
-/* Emite uma linha de produção no arquivo de saída e no stdout */
 static void emiteProd(const char *regra) {
     fprintf(saida,  "%s\n", regra);
     printf("%s\n", regra);
 }
 
-/* Reporta erro e encerra a compilação */
 static void erroSintatico(const char *msg) {
 
     FILE *ferr = fopen("../saida/erros.err", "a");
@@ -126,16 +93,10 @@ static void erroSintatico(const char *msg) {
     exit(1);
 }
 
-/* Avança para o próximo token */
 static void avanca(void) {
     tokenAtual = proximoToken(fonte);
 }
 
-/*
- * casaToken(esperado)
- *   Verifica se o token atual é o esperado.
- *   Se sim, avança; senão, reporta erro.
- */
 static void casaToken(const char *esperado) {
     if (strcmp(tokenAtual.token, esperado) == 0) {
         avanca();
@@ -144,9 +105,6 @@ static void casaToken(const char *esperado) {
     }
 }
 
-/* ------------------------------------------------------------------ */
-/* Protótipos dos não-terminais                                        */
-/* ------------------------------------------------------------------ */
 static void bloco(void);
 static void parteDeclaracoesVar(void);
 static void declaracaoVar(void);
@@ -162,13 +120,7 @@ static void exprSimples(void);
 static void termo(void);
 static void fator(void);
 
-/* ------------------------------------------------------------------ */
-/* Implementação dos não-terminais                                     */
-/* ------------------------------------------------------------------ */
 
-/*
- * programa ::= program <identificador> ; <bloco> .
- */
 void programa(void) {
     addArvore("programa");
     emiteProd("<programa> ::= program <identificador> ; <bloco> .");
@@ -183,9 +135,6 @@ void programa(void) {
     }
 }
 
-/*
- * bloco ::= <parte_decl_var> <cmd_composto>
- */
 static void bloco(void) {
     addArvore("└── bloco");
     emiteProd("<bloco> ::= <parte_decl_var> <cmd_composto>");
@@ -193,23 +142,18 @@ static void bloco(void) {
     comandoComposto();
 }
 
-/*
- * parte_decl_var ::= { var <decl_var> { ; <decl_var> } ; }
- *   (a parte inteira é opcional – zero ou uma ocorrência de 'var ...')
- */
 static void parteDeclaracoesVar(void) {
     if (strcmp(tokenAtual.token, "KW_var") == 0) {
         emiteProd("<parte_decl_var> ::= var <decl_var> { ; <decl_var> } ;");
         casaToken("KW_var");
         declaracaoVar();
-        /* { ; <decl_var> } */
         while (strcmp(tokenAtual.token, "SMB_SEM") == 0) {
-            /* lookahead: se após o ';' vier ID, há mais declarações */
+           
             casaToken("SMB_SEM");
             if (strcmp(tokenAtual.token, "ID") == 0) {
                 declaracaoVar();
             } else {
-                break; /* o ';' terminou o bloco de declarações */
+                break; 
             }
         }
     } else {
@@ -217,9 +161,6 @@ static void parteDeclaracoesVar(void) {
     }
 }
 
-/*
- * decl_var ::= <lista_id> : <tipo>
- */
 static void declaracaoVar(void) {
      addArvore("    ├── declaracao");
     emiteProd("<decl_var> ::= <lista_id> : <tipo>");
@@ -228,9 +169,6 @@ static void declaracaoVar(void) {
     tipo();
 }
 
-/*
- * lista_id ::= <identificador> { , <identificador> }
- */
 static void listaIdentificadores(void) {
     emiteProd("<lista_id> ::= <identificador> { , <identificador> }");
     casaToken("ID");
@@ -240,9 +178,6 @@ static void listaIdentificadores(void) {
     }
 }
 
-/*
- * tipo ::= integer | real
- */
 static void tipo(void) {
     if (strcmp(tokenAtual.token, "KW_integer") == 0) {
         emiteProd("<tipo> ::= integer");
@@ -255,15 +190,11 @@ static void tipo(void) {
     }
 }
 
-/*
- * cmd_composto ::= begin <comando> ; { <comando> ; } end
- */
 static void comandoComposto(void) {
     emiteProd("<cmd_composto> ::= begin <comando> ; { <comando> ; } end");
     casaToken("KW_begin");
     comando();
     casaToken("SMB_SEM");
-    /* { <comando> ; } */
     while (strcmp(tokenAtual.token, "KW_end") != 0) {
         comando();
         casaToken("SMB_SEM");
@@ -271,16 +202,7 @@ static void comandoComposto(void) {
     casaToken("KW_end");
 }
 
-/*
- * comando ::= <atribuicao> | <cmd_composto>
- *           | <cmd_condicional> | <cmd_repetitivo>
- *
- * Escolha pelo token corrente (LL(1)):
- *   ID       → atribuicao
- *   begin    → cmd_composto
- *   if       → cmd_condicional
- *   while    → cmd_repetitivo
- */
+
 static void comando(void) {
     if (strcmp(tokenAtual.token, "ID") == 0) {
         emiteProd("<comando> ::= <atribuicao>");
@@ -299,10 +221,7 @@ static void comando(void) {
     }
 }
 
-/*
- * atribuicao ::= <variavel> := <expressao>
- * variavel    ::= <identificador>
- */
+
 static void atribuicao(void) {
     addArvore("        ├── atribuicao");
     emiteProd("<atribuicao> ::= <variavel> := <expressao>");
@@ -312,9 +231,7 @@ static void atribuicao(void) {
     expressao();
 }
 
-/*
- * cmd_condicional ::= if <expressao> then <comando> [ else <comando> ]
- */
+
 static void cmdCondicional(void) {
     addArvore("        ├── if");
     emiteProd("<cmd_condicional> ::= if <expressao> then <comando> [ else <comando> ]");
@@ -328,9 +245,6 @@ static void cmdCondicional(void) {
     }
 }
 
-/*
- * cmd_repetitivo ::= while <expressao> do <comando>
- */
 static void cmdRepetitivo(void) {
     addArvore("        └── while");
     emiteProd("<cmd_repetitivo> ::= while <expressao> do <comando>");
@@ -340,10 +254,7 @@ static void cmdRepetitivo(void) {
     comando();
 }
 
-/*
- * relacao ::= = | <> | < | <= | >= | >
- * Retorna 1 se o token atual é uma relação.
- */
+
 static int ehRelacao(void) {
     return (strcmp(tokenAtual.token, "OP_EQ") == 0 ||
             strcmp(tokenAtual.token, "OP_NE") == 0 ||
@@ -353,14 +264,11 @@ static int ehRelacao(void) {
             strcmp(tokenAtual.token, "OP_GE") == 0);
 }
 
-/*
- * expressao ::= <expr_simples> [ <relacao> <expr_simples> ]
- */
+
 static void expressao(void) {
     emiteProd("<expressao> ::= <expr_simples> [ <relacao> <expr_simples> ]");
     exprSimples();
     if (ehRelacao()) {
-        /* emite qual relação foi usada */
         char buf[80];
         sprintf(buf, "<relacao> ::= %s", tokenAtual.lexema);
         emiteProd(buf);
@@ -369,12 +277,8 @@ static void expressao(void) {
     }
 }
 
-/*
- * expr_simples ::= [ + | - ] <termo> { ( + | - ) <termo> }
- */
 static void exprSimples(void) {
     emiteProd("<expr_simples> ::= [ + | - ] <termo> { ( + | - ) <termo> }");
-    /* sinal unário opcional */
     if (strcmp(tokenAtual.token, "OP_AD")  == 0 ||
         strcmp(tokenAtual.token, "OP_MIN") == 0) {
         avanca();
@@ -387,9 +291,6 @@ static void exprSimples(void) {
     }
 }
 
-/*
- * termo ::= <fator> { ( * | / ) <fator> }
- */
 static void termo(void) {
     emiteProd("<termo> ::= <fator> { ( * | / ) <fator> }");
     fator();
@@ -400,14 +301,7 @@ static void termo(void) {
     }
 }
 
-/*
- * fator ::= <variavel> | <numero> | ( <expressao> )
- *
- * Escolha:
- *   ID           → variavel (= identificador)
- *   NUM_INT/REAL → numero
- *   (            → ( expressao )
- */
+
 static void fator(void) {
     if (strcmp(tokenAtual.token, "ID") == 0) {
         emiteProd("<fator> ::= <variavel>");
@@ -427,15 +321,6 @@ static void fator(void) {
     }
 }
 
-
-/* ------------------------------------------------------------------ */
-/* Ponto de entrada público                                            */
-/* ------------------------------------------------------------------ */
-
-/*
- * initParser  –  inicializa o parser com o arquivo fonte e o de saída,
- *                lê o primeiro token e está pronto para analisar.
- */
 void initParser(FILE *fp, FILE *out) {
     fonte = fp;
     saida = out;
