@@ -9,9 +9,7 @@ then            | palavra-reservada
 else            | palavra-reservada   
 while           | palavra-reservada   
 do              | palavra-reservada   
-sistemacalculo  | identificador       
-a               | identificador       
-b               | identificador       
-c               | identificador       
+sistema         | identificador       
 x               | identificador       
 y               | identificador       
+media           | identificador       

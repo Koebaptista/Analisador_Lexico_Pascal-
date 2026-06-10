@@ -1,13 +1,16 @@
-program SistemaCalculo;
+program sistema;
+
 var
-a, b, c : integer;
-x, y : real;
+    x, y : integer;
+    media : real;
+
 begin
-{ inicialização }
-a := 10;
-b := 20;
-c := a + b * 3;
-{ operações com real }
-x := 2.5;
-y := x * 10.0 + c;
+    x := 10;
+    y := 20;
+
+    if x < y then
+        media := (x + y) / 2;
+
+    while x < y do
+        x := x + 1;
 end.
